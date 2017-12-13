@@ -76,6 +76,12 @@ public:
     return ret;
   }
   
+  void printFVector(){
+    for (int i = 0; i < _n; i++){
+        std::cout << _p[i] << " ";
+    }
+    std::cout << std::endl;
+  }
 
   int get_size();
   double norm();
