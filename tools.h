@@ -32,7 +32,8 @@ void printVec(const std::vector<T> nums){
     std::cout << std::endl;
 }
 
-void printVec(int* nums, int n){
+template <class T>
+void printVec(T* nums, int n){
     for (int i = 0; i < n; i++){
         std::cout << nums[i] << " ";
     }
