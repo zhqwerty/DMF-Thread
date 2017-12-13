@@ -141,30 +141,7 @@ int main(int argv, char *argc[]){
     }
 
     for (int epoch = 0; epoch < maxEpoch; epoch++){
-        pthread_t shuffler_t;
-        cur_learning_rate = learning_rate * pow(1 + epoch, 0.1);
-        int ret = pthread_create( &shuffler_t, NULL, permute_thread, (void*)pti);
-        if(ret != 0) { 
-            cout << "Error in pthread_create: " << ret << endl;
-            exit(-1); 
-        }
-
-        pthread_t workers[nWorkers];
-        for(int i = 0; i < nWorkers; i++) {
-            wtis[i]->perm = pti->r;
-            wtis[i]->cur_learning_rate = cur_learning_rate;
-            int ret = pthread_create( &workers[i], NULL, gradient_thread, (void*) wtis[i]);
-            if(ret != 0) { 
-                cout << "Error in pthread_create: " << ret << endl;
-                exit(-1); 
-            }
-        }
-        // Thread Join
-        for(int i = 0; i < nWorkers; i++) {
-            pthread_join(workers[i], NULL);
-        }
-        pthread_join(shuffler_t, NULL);
-        
+       
         // Test Error and Accuracy 
         int trueNum = 0;
         long double error = 0;
