@@ -92,7 +92,7 @@ void* gradient_thread(void* params) {
         gradYj.scale(-exp(rating * predict) * rating / den);
         gradYj.scale_and_add(Y[col_index], lambda);
 
-        Y[row_index].scale_and_add(gradYj, -cur_learning_rate);
+        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
     }
     return NULL;
 }
@@ -111,6 +111,7 @@ int main(int argv, char *argc[]){
     double lambda = 0.1;
     int nTrain = int(nExamples * sample_rate);
     int nTest = nExamples - nTrain;
+    std::cout << "nTrain: " << nTrain << "  nTest: " << nTest << std::endl;
 
     FVector* X = new FVector[nRows];
     FVector* Y = new FVector[nCols];
@@ -120,28 +121,45 @@ int main(int argv, char *argc[]){
     permute(rd, sample, nExamples);
 
     // Variables Update
-    int maxEpoch = 10;
-    double learning_rate = 1;
+    int maxEpoch = 20;
+    int maxIter = 1e2;
+    double learning_rate = 10;
     double cur_learning_rate = learning_rate;
-    double step_diminishing = 0.95;
     std::vector<double> acc;
     std::vector<double> rmse;
      
     std::cout << "Start Training ... " << std::endl;
     timer train_time(true);
-    int* shared_perm = init_permutation(nTrain);
-    //printVec(shared_perm, nTrain); 
-    simple_random rd1;
-    struct permute_thread_info* pti = new permute_thread_info(rd1, shared_perm, nTrain);
-
-    gradient_thread_info* wtis[nWorkers];
-    for (int i = 0; i < nWorkers; i++){
-        wtis[i] = new gradient_thread_info(i, nWorkers, nTrain, X, Y, examples, 
-                                            shared_perm, cur_learning_rate, lambda);
-    }
-
     for (int epoch = 0; epoch < maxEpoch; epoch++){
-       
+        for (int iter = 0; iter < maxIter; iter++){
+
+            cur_learning_rate = learning_rate * pow(epoch * maxIter + iter, 0.1);
+
+            int pick = rd.rand_int(nTrain);
+            int pi = sample[pick];
+            
+            int row_index = examples[pi].row;
+            int col_index = examples[pi].col;
+            double rating = examples[pi].rating;
+
+            // Calculate gradient
+            double predict = FVector::dot(X[row_index], Y[col_index]);
+            double den = pow(1 + exp(predict * rating), 2); 
+        
+            FVector gradXi = Y[col_index]; // need to multiply Yj
+            gradXi.scale(-exp(rating * predict) * rating / den);
+            gradXi.scale_and_add(X[row_index], lambda); 
+
+            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+
+            FVector gradYj = X[row_index]; // need to multiply by Xi
+            gradYj.scale(-exp(rating * predict) * rating / den);
+            gradYj.scale_and_add(Y[col_index], lambda);
+
+            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+//            X[row_index].printFVector();
+  //          Y[col_index].printFVector();
+        }    
         // Test Error and Accuracy 
         int trueNum = 0;
         long double error = 0;
@@ -161,9 +179,6 @@ int main(int argv, char *argc[]){
         printf("Epoch: %d   Accuracy: %.4f  RMSE: %.4f  Spend Time: %.2f s \n", epoch, acc.back(), rmse.back(), train_time.elapsed() ); 
     }
 
-    for (int i = 0; i < nWorkers; i++) delete wtis[i];
-    delete shared_perm;
-    delete pti;
     delete[] X;
     delete[] Y;
     return 0;
