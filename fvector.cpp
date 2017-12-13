@@ -13,7 +13,7 @@ void FVector::init(int n) {
   _n = n;
   _p = new double[n];
   for(int i = 0; i < _n; i++) {
-    _p[i] = (drand48() - 0.5) * 1e-3;
+    _p[i] = (drand48() - 0.5);
   }
 }
 
