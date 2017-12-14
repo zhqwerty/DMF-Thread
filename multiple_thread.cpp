@@ -123,7 +123,7 @@ int main(int argv, char *argc[]){
     permute(rd, sample, nExamples);
 
     // Variables Update
-    int maxEpoch = 50;
+    int maxEpoch = 100;
     double learning_rate = 0.01;
     double cur_learning_rate = learning_rate;
     std::vector<double> acc;
