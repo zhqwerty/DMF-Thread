@@ -125,9 +125,9 @@ int main(int argv, char *argc[]){
 //    }
  
     // Variables Update
-    int maxEpoch = 300;
+    int maxEpoch = 40;
     int maxIter = 1e5;
-    double learning_rate = 0.1;
+    double learning_rate = 10;
     double cur_learning_rate = learning_rate;
     std::vector<double> acc;
     std::vector<double> rmse;
@@ -137,8 +137,9 @@ int main(int argv, char *argc[]){
     for (int epoch = 0; epoch < maxEpoch; epoch++){
         for (int iter = 0; iter < maxIter; iter++){
 
-            cur_learning_rate = learning_rate * pow(epoch * maxIter + iter, 0.1);
-
+//            cur_learning_rate = learning_rate * pow(epoch * maxIter + iter, 0.1);
+            cur_learning_rate = learning_rate / pow(epoch * maxIter + iter + 1, 0.1);
+            
             int pick = rd.rand_int(nTrain);
             int pi = sample[pick];
             
