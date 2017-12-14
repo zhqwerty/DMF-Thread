@@ -124,7 +124,7 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 0.01;
+    double learning_rate = 1;
     double cur_learning_rate = learning_rate;
     std::vector<double> acc;
     std::vector<double> rmse;
@@ -144,7 +144,7 @@ int main(int argv, char *argc[]){
 
     for (int epoch = 0; epoch < maxEpoch; epoch++){
         pthread_t shuffler_t;
-        cur_learning_rate = learning_rate * pow(1 + epoch, 0.1);
+        cur_learning_rate = learning_rate / pow(1 + epoch, 0.1);
         int ret = pthread_create( &shuffler_t, NULL, permute_thread, (void*)pti);
         if(ret != 0) { 
             cout << "Error in pthread_create: " << ret << endl;
