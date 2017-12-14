@@ -119,11 +119,15 @@ int main(int argv, char *argc[]){
     int* sample = init_permutation(nExamples);
     simple_random rd;
     permute(rd, sample, nExamples);
-
+//    for (int i = 0; i < nExamples; i++){
+//        int pi = sample[i];
+//        std::cout << examples[pi].row << " " << examples[pi].col << " " << examples[pi].rating << std::endl;
+//    }
+ 
     // Variables Update
-    int maxEpoch = 20;
-    int maxIter = 1e2;
-    double learning_rate = 10;
+    int maxEpoch = 300;
+    int maxIter = 1e5;
+    double learning_rate = 0.1;
     double cur_learning_rate = learning_rate;
     std::vector<double> acc;
     std::vector<double> rmse;
@@ -145,11 +149,14 @@ int main(int argv, char *argc[]){
             // Calculate gradient
             double predict = FVector::dot(X[row_index], Y[col_index]);
             double den = pow(1 + exp(predict * rating), 2); 
-        
+            //std::cout << "predict: " << predict << std::endl;
+
+//            X[row_index].printFVector();
             FVector gradXi = Y[col_index]; // need to multiply Yj
             gradXi.scale(-exp(rating * predict) * rating / den);
             gradXi.scale_and_add(X[row_index], lambda); 
-
+            
+//            gradXi.printFVector();
             X[row_index].scale_and_add(gradXi, -cur_learning_rate);
 
             FVector gradYj = X[row_index]; // need to multiply by Xi
@@ -158,7 +165,7 @@ int main(int argv, char *argc[]){
 
             Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 //            X[row_index].printFVector();
-  //          Y[col_index].printFVector();
+//            Y[col_index].printFVector();
         }    
         // Test Error and Accuracy 
         int trueNum = 0;
@@ -176,7 +183,7 @@ int main(int argv, char *argc[]){
         acc.push_back(double(trueNum) / nTest);
         rmse.push_back(sqrt(error / nTest));
         train_time.stop();
-        printf("Epoch: %d   Accuracy: %.4f  RMSE: %.4f  Spend Time: %.2f s \n", epoch, acc.back(), rmse.back(), train_time.elapsed() ); 
+        printf("Epoch: %d   Accuracy: %.4f  RMSE: %.4f  Spend Time: %.2f s \n", epoch + 1, acc.back(), rmse.back(), train_time.elapsed() ); 
     }
 
     delete[] X;
