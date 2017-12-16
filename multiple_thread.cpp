@@ -1,12 +1,13 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <math.h>
 #include <random>
 #include "simple_random.h"
 #include "timer.h"
 #include "fvector.h"
-#include "examples.h"
 #include "tools.h"
+#include "examples.h"
 #include "global_macros.h"
 
 using namespace std;
@@ -126,8 +127,10 @@ int main(int argv, char *argc[]){
     int maxEpoch = 100;
     double learning_rate = 1;
     double cur_learning_rate = learning_rate;
-    std::vector<double> acc;
-    std::vector<double> rmse;
+    std::vector<double> Acc;
+    std::vector<double> Rmse;
+    std::vector<int> Epoch;
+    std::vector<double> Time;
      
     std::cout << "Start Training ... " << std::endl;
     timer train_time(true);
@@ -180,11 +183,24 @@ int main(int argv, char *argc[]){
             if ( sign(predict) == sign(rating) ) trueNum++;
             error += pow(predict - rating, 2);
         }
-        acc.push_back(double(trueNum) / nTest);
-        rmse.push_back(sqrt(error / nTest));
+        Acc.push_back(double(trueNum) / nTest);
+        Rmse.push_back(sqrt(error / nTest));
+        Epoch.push_back(epoch + 1);
         train_time.stop();
-        printf("Epoch: %d   Accuracy: %.4f  RMSE: %.4f  Spend Time: %.2f s \n", epoch + 1, acc.back(), rmse.back(), train_time.elapsed() ); 
+        Time.push_back(train_time.elapsed());
+        printf("Epoch: %d   Accuracy: %.4f  RMSE: %.4f  Spend Time: %.2f s \n", Epoch.back(), Acc.back(), Rmse.back(), Time.back() ); 
     }
+
+    //  OutPut File
+     std::ofstream out("./Output/out.txt");
+     if (out.is_open()){
+         printf("write to output file\n");
+         for (int i = 0; i < Epoch.size(); i++){
+             out << Epoch[i] << " " << Acc[i] << " " << Rmse[i] << " " << Time[i] << "\n";
+         }
+         out.close();
+     }
+
 
     for (int i = 0; i < nWorkers; i++) delete wtis[i];
     delete shared_perm;
