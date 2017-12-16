@@ -2,7 +2,6 @@
 #define _TOOLS_
 
 #include <chrono>
-#include <iostream>
 
 class Timer
 {
@@ -25,19 +24,6 @@ public:
         span = dd(0);
     }
 };
-
-template <class T>
-void printVec(const std::vector<T> nums){
-    for (auto num : nums) std::cout << num << " ";
-    std::cout << std::endl;
-}
-
-void printVec(int* nums, int n){
-    for (int i = 0; i < n; i++){
-        std::cout << nums[i] << " ";
-    }
-    std::cout << std::endl;
-}
 
 template<typename T>
 T max_element(std::vector<T> vec) {
