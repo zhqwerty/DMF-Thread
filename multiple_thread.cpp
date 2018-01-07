@@ -101,7 +101,8 @@ void* gradient_thread(void* params) {
 }
 
 int main(int argv, char *argc[]){
-    const char* inputFile = "/Users/ZMY/data/Slashdot/slashdot.txt";
+    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
+    const char* inputFile = "/home/han/data/Epinions/epinions.txt";
     int nRows, nCols, nExamples;
     Example* examples = load_examples(inputFile, nRows, nCols, nExamples);
     
@@ -109,7 +110,7 @@ int main(int argv, char *argc[]){
     //for (int i = 0; i < nExamples; i++) std::cout << examples[i].row << " " << examples[i].col << " " << examples[i].rating << std::endl;
     
     int rank = 30;
-    int nWorkers = 1;
+    int nWorkers = 16;
     double sample_rate = 0.9;
     double lambda = 0.1;
     int nTrain = int(nExamples * sample_rate);
@@ -125,7 +126,7 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 1;
+    double learning_rate = 0.2;
     double cur_learning_rate = learning_rate;
     std::vector<double> Acc;
     std::vector<double> Rmse;
