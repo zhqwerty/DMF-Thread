@@ -113,12 +113,12 @@ void* gradient_thread(void* params) {
         // Apply Gradient for Square-hinge Loss
         if (rating * predict < 1){
             FVector gradXi = Y[col_index];
-            gradXi.scale(2 * (1 - rating * predict) * rating);
+            gradXi.scale(2 * (rating * predict - 1) * rating);
             gradXi.scale_and_add(X[row_index], lambda);
             X[row_index].scale_and_add(gradXi, -cur_learning_rate);
             
             FVector gradYj = X[row_index];
-            gradYj.scale(2 * (1 - rating * predict) * rating);
+            gradYj.scale(2 * (rating * predict - 1) * rating);
             gradYj.scale_and_add(Y[col_index], lambda);
             Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
         } 
@@ -151,9 +151,9 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 0.1;
+    double learning_rate = 0.01;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 1;
+    int nWorkers = 10;
     double sample_rate = 0.9;
     double lambda = 0.1;
     int nTrain = int(nExamples * sample_rate);
