@@ -80,19 +80,32 @@ void* gradient_thread(void* params) {
         int row_index = examples[pi].row;
         int col_index = examples[pi].col;
         double rating = examples[pi].rating;
-
-        // Calculate gradient
         double predict = FVector::dot(X[row_index], Y[col_index]);
-        double den = pow(1 + exp(predict * rating), 2); 
-        
-        FVector gradXi = Y[col_index]; // need to multiply Yj
-        gradXi.scale(-exp(rating * predict) * rating / den);
-        gradXi.scale_and_add(X[row_index], lambda); 
+
+//        // Apply Gradient for Sigmoid Loss
+//        double den = pow(1 + exp(predict * rating), 2); 
+//        
+//        FVector gradXi = Y[col_index]; // need to multiply Yj
+//        gradXi.scale(-exp(rating * predict) * rating / den);
+//        gradXi.scale_and_add(X[row_index], lambda); 
+//
+//        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//
+//        FVector gradYj = X[row_index]; // need to multiply by Xi
+//        gradYj.scale(-exp(rating * predict) * rating / den);
+//        gradYj.scale_and_add(Y[col_index], lambda);
+//
+//        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+
+        // Apply Gradient for Square Loss
+        FVector gradXi = Y[col_index];
+        gradXi.scale(2 * (predict - rating));
+        gradXi.scale_and_add(X[row_index], lambda);
 
         X[row_index].scale_and_add(gradXi, -cur_learning_rate);
 
-        FVector gradYj = X[row_index]; // need to multiply by Xi
-        gradYj.scale(-exp(rating * predict) * rating / den);
+        FVector gradYj = X[row_index];
+        gradYj.scale(2 * (predict - rating));
         gradYj.scale_and_add(Y[col_index], lambda);
 
         Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
@@ -102,7 +115,9 @@ void* gradient_thread(void* params) {
 
 int main(int argv, char *argc[]){
     //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
-    const char* inputFile = "/home/han/data/Epinions/epinions.txt";
+    //const char* inputFile = "/home/han/data/Epinions/epinions.txt";
+    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
+    const char* inputFile = "/Users/ZMY/data/Epinions/epinions.txt";
     int nRows, nCols, nExamples;
     Example* examples = load_examples(inputFile, nRows, nCols, nExamples);
     
@@ -110,9 +125,9 @@ int main(int argv, char *argc[]){
     //for (int i = 0; i < nExamples; i++) std::cout << examples[i].row << " " << examples[i].col << " " << examples[i].rating << std::endl;
     
     int rank = 30;
-    int nWorkers = 16;
+    int nWorkers = 1;
     double sample_rate = 0.9;
-    double lambda = 0.1;
+    double lambda = 0.001;
     int nTrain = int(nExamples * sample_rate);
     int nTest = nExamples - nTrain;
     std::cout << "nWorkers: " << nWorkers << std::endl;
