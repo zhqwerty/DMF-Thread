@@ -162,17 +162,35 @@ int main(int argv, char *argc[]){
 //            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
             // Apply Gradient for Square Loss
-        	FVector gradXi = Y[col_index];
-        	gradXi.scale(2 * (predict - rating));
-        	gradXi.scale_and_add(X[row_index], lambda);
+        	// FVector gradXi = Y[col_index];
+        	// gradXi.scale(2 * (predict - rating));
+        	// gradXi.scale_and_add(X[row_index], lambda);
 
-        	X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+        	// X[row_index].scale_and_add(gradXi, -cur_learning_rate);
 
-        	FVector gradYj = X[row_index];
-        	gradYj.scale(2 * (predict - rating));
-        	gradYj.scale_and_add(Y[col_index], lambda);
+        	// FVector gradYj = X[row_index];
+        	// gradYj.scale(2 * (predict - rating));
+        	// gradYj.scale_and_add(Y[col_index], lambda);
 
-        	Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        	// Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+
+        	// Apply Gradient for Square-hinge Loss
+        	if (rating * predict < 1){
+            	FVector gradXi = Y[col_index];
+            	gradXi.scale(2 * (rating * predict - 1) * rating);
+            	gradXi.scale_and_add(X[row_index], lambda);
+            	X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+            
+            	FVector gradYj = X[row_index];
+            	gradYj.scale(2 * (rating * predict - 1) * rating);
+            	gradYj.scale_and_add(Y[col_index], lambda);
+            	Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        	} 
+        	else{
+            	X[row_index].scale(1 - cur_learning_rate * lambda);
+            	Y[col_index].scale(1 - cur_learning_rate * lambda);
+        	}
+
         }    
         // Test Error and Accuracy 
         int trueNum = 0;
