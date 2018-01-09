@@ -105,7 +105,6 @@ int main(int argv, char *argc[]){
     std::cout << "nRows: " << nRows  << " nCols: " << nCols << " nExamples: " << nExamples << std::endl;
     //for (int i = 0; i < nExamples; i++) std::cout << examples[i].row << " " << examples[i].col << " " << examples[i].rating << std::endl;
     
-    int rank = 30;
     int nWorkers = 1;
     double sample_rate = 0.9;
     double lambda = 0.1;
@@ -126,8 +125,8 @@ int main(int argv, char *argc[]){
  
     // Variables Update
     int maxEpoch = 40;
-    int maxIter = 1e5;
-    double learning_rate = 10;
+    int maxIter = 1e6;
+    double learning_rate = 0.01;
     double cur_learning_rate = learning_rate;
     std::vector<double> acc;
     std::vector<double> rmse;
@@ -137,7 +136,6 @@ int main(int argv, char *argc[]){
     for (int epoch = 0; epoch < maxEpoch; epoch++){
         for (int iter = 0; iter < maxIter; iter++){
 
-//            cur_learning_rate = learning_rate * pow(epoch * maxIter + iter, 0.1);
             cur_learning_rate = learning_rate / pow(epoch * maxIter + iter + 1, 0.1);
             
             int pick = rd.rand_int(nTrain);
@@ -146,27 +144,35 @@ int main(int argv, char *argc[]){
             int row_index = examples[pi].row;
             int col_index = examples[pi].col;
             double rating = examples[pi].rating;
-
-            // Calculate gradient
             double predict = FVector::dot(X[row_index], Y[col_index]);
-            double den = pow(1 + exp(predict * rating), 2); 
-            //std::cout << "predict: " << predict << std::endl;
 
-//            X[row_index].printFVector();
-            FVector gradXi = Y[col_index]; // need to multiply Yj
-            gradXi.scale(-exp(rating * predict) * rating / den);
-            gradXi.scale_and_add(X[row_index], lambda); 
-            
-//            gradXi.printFVector();
-            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//      		// Apply Gradient for Sigmoid Loss
+//            double den = pow(1 + exp(predict * rating), 2); 
+//            
+//            FVector gradXi = Y[col_index]; // need to multiply Yj
+//            gradXi.scale(-exp(rating * predict) * rating / den);
+//            gradXi.scale_and_add(X[row_index], lambda); 
+//            
+//            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//
+//            FVector gradYj = X[row_index]; // need to multiply by Xi
+//            gradYj.scale(-exp(rating * predict) * rating / den);
+//            gradYj.scale_and_add(Y[col_index], lambda);
+//
+//            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
-            FVector gradYj = X[row_index]; // need to multiply by Xi
-            gradYj.scale(-exp(rating * predict) * rating / den);
-            gradYj.scale_and_add(Y[col_index], lambda);
+            // Apply Gradient for Square Loss
+        	FVector gradXi = Y[col_index];
+        	gradXi.scale(2 * (predict - rating));
+        	gradXi.scale_and_add(X[row_index], lambda);
 
-            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
-//            X[row_index].printFVector();
-//            Y[col_index].printFVector();
+        	X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+
+        	FVector gradYj = X[row_index];
+        	gradYj.scale(2 * (predict - rating));
+        	gradYj.scale_and_add(Y[col_index], lambda);
+
+        	Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
         }    
         // Test Error and Accuracy 
         int trueNum = 0;
