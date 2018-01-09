@@ -98,17 +98,34 @@ void* gradient_thread(void* params) {
 //        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square Loss
-        FVector gradXi = Y[col_index];
-        gradXi.scale(2 * (predict - rating));
-        gradXi.scale_and_add(X[row_index], lambda);
+//        FVector gradXi = Y[col_index];
+//        gradXi.scale(2 * (predict - rating));
+//        gradXi.scale_and_add(X[row_index], lambda);
+//
+//        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//
+//        FVector gradYj = X[row_index];
+//        gradYj.scale(2 * (predict - rating));
+//        gradYj.scale_and_add(Y[col_index], lambda);
+//
+//        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
-        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-
-        FVector gradYj = X[row_index];
-        gradYj.scale(2 * (predict - rating));
-        gradYj.scale_and_add(Y[col_index], lambda);
-
-        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        // Apply Gradient for Square-hinge Loss
+        if (rating * predict < 1){
+            FVector gradXi = Y[col_index];
+            gradXi.scale(2 * (1 - rating * predict) * rating);
+            gradXi.scale_and_add(X[row_index], lambda);
+            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+            
+            FVector gradYj = X[row_index];
+            gradYj.scale(2 * (1 - rating * predict) * rating);
+            gradYj.scale_and_add(Y[col_index], lambda);
+            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        } 
+        else{
+            X[row_index].scale(1 - cur_learning_rate * lambda);
+            Y[col_index].scale(1 - cur_learning_rate * lambda);
+        }
     }
     return NULL;
 }
@@ -124,13 +141,6 @@ int main(int argv, char *argc[]){
     std::cout << "nRows: " << nRows  << " nCols: " << nCols << " nExamples: " << nExamples << std::endl;
     //for (int i = 0; i < nExamples; i++) std::cout << examples[i].row << " " << examples[i].col << " " << examples[i].rating << std::endl;
     
-    int rank = 30;
-    int nWorkers = 1;
-    double sample_rate = 0.9;
-    double lambda = 0.001;
-    int nTrain = int(nExamples * sample_rate);
-    int nTest = nExamples - nTrain;
-    std::cout << "nWorkers: " << nWorkers << std::endl;
 
     FVector* X = new FVector[nRows];
     FVector* Y = new FVector[nCols];
@@ -141,8 +151,15 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 0.2;
+    double learning_rate = 0.1;
     double cur_learning_rate = learning_rate;
+    int nWorkers = 1;
+    double sample_rate = 0.9;
+    double lambda = 0.1;
+    int nTrain = int(nExamples * sample_rate);
+    int nTest = nExamples - nTrain;
+    std::cout << "nWorkers: " << nWorkers << std::endl;
+    
     std::vector<double> Acc;
     std::vector<double> Rmse;
     std::vector<int> Epoch;
