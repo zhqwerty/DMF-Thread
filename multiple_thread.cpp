@@ -70,13 +70,14 @@ void* gradient_thread(void* params) {
     double lambda = gti->lambda;
 
     // Calculate offset for examples
-    int start_offset = id * (nTrain / nWorkers);
-    int end_offset   = min(nTrain, (id + 1) * (nTrain / nWorkers));
-    DEBUG_ONLY(cout << "start=" << start_offset << " -- " << end_offset << " " << nExamples << " nWorkers=" << nWorkers << " id=" << id << endl;)
+//    int start_offset = id * (nTrain / nWorkers);
+//    int end_offset   = min(nTrain, (id + 1) * (nTrain / nWorkers));
+//    DEBUG_ONLY(cout << "start=" << start_offset << " -- " << end_offset << " " << nExamples << " nWorkers=" << nWorkers << " id=" << id << endl;)
 
-    for (int i = start_offset; i < end_offset; i++){
+    timer worker_time(true); 
+    while (worker_time.elapsed() < 10){
         // Read example
-        int pi = sample[perm[i]];
+        int pi = sample[rand() % nTrain];
         int row_index = examples[pi].row;
         int col_index = examples[pi].col;
         double rating = examples[pi].rating;
@@ -126,6 +127,7 @@ void* gradient_thread(void* params) {
             X[row_index].scale(1 - cur_learning_rate * lambda);
             Y[col_index].scale(1 - cur_learning_rate * lambda);
         }
+        worker_time.stop();
     }
     return NULL;
 }
