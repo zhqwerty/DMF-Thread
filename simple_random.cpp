@@ -11,7 +11,7 @@ simple_random::gen_seed() {
 
 void
 simple_random::init() {
-  DEBUG_ONLY(std::cout << "[simple_random] random seed initialized to " << _seed << std::endl;);
+  DEBUG_ONLY(std::cout << "[simple_random] random seed initialized to " << _seed << std::endl);
   srand(_seed);
 }
 
