@@ -152,12 +152,12 @@ int main(int argv, char *argc[]){
     permute(rd, sample, nExamples);
 
     // Variables Update
-    int maxEpoch = 18;
-    double learning_rate = 0.1;
+    int maxEpoch = 22;
+    double learning_rate = 1;
     double cur_learning_rate = learning_rate;
     int nWorkers = 10;
     double sample_rate = 0.9;
-    double lambda = 0.1;
+    double lambda = 0.01;
     int nTrain = int(nExamples * sample_rate);
     int nTest = nExamples - nTrain;
     std::cout << "nWorkers: " << nWorkers << std::endl;
