@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 numWorkers = [1,10,20,30,40]
 # files = ["epinions-sh/w10.txt", "fully_asy/ep-sh-10.txt"]
-files = ["slashdot-sig/w10.txt", "fully_asy/sl-sig-10.txt"]
+files = ["epinions-sig/w10.txt", "fully_asy/ep-sig-10.txt"]
 # files = ["epinions-sq/w10.txt", "fully_asy/ep-sq-10.txt"]
 labels = ["asy_syn", "asy"]
 speedup = []
