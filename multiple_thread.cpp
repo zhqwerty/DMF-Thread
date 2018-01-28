@@ -153,7 +153,7 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 18;
-    double learning_rate = 1;
+    double learning_rate = 0.1;
     double cur_learning_rate = learning_rate;
     int nWorkers = 10;
     double sample_rate = 0.9;
