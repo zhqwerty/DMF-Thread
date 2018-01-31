@@ -79,41 +79,41 @@ void* gradient_thread(void* params) {
 //    DEBUG_ONLY(cout << "start=" << start_offset << " -- " << end_offset << " " << nExamples << " nWorkers=" << nWorkers << " id=" << id << endl;)
 
     while (sampleCount < nTrain){
-        sampleCount++; 
         // Read example
-        int pi = sample[rand() % nTrain];
+        //int pi = sample[rand() % nTrain];
+        int pi = sample[perm[sampleCount % nTrain]];
         int row_index = examples[pi].row;
         int col_index = examples[pi].col;
         double rating = examples[pi].rating;
         double predict = FVector::dot(X[row_index], Y[col_index]);
 
         // Apply Gradient for Sigmoid Loss
-        double den = pow(1 + exp(predict * rating), 2); 
-        
-        FVector gradXi = Y[col_index]; // need to multiply Yj
-        gradXi.scale(-exp(rating * predict) * rating / den);
-        gradXi.scale_and_add(X[row_index], lambda); 
-
-        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-
-        FVector gradYj = X[row_index]; // need to multiply by Xi
-        gradYj.scale(-exp(rating * predict) * rating / den);
-        gradYj.scale_and_add(Y[col_index], lambda);
-
-        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
-
-        // Apply Gradient for Square Loss
-//        FVector gradXi = Y[col_index];
-//        gradXi.scale(2 * (predict - rating));
-//        gradXi.scale_and_add(X[row_index], lambda);
+//        double den = pow(1 + exp(predict * rating), 2); 
+//        
+//        FVector gradXi = Y[col_index]; // need to multiply Yj
+//        gradXi.scale(-exp(rating * predict) * rating / den);
+//        gradXi.scale_and_add(X[row_index], lambda); 
 //
 //        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
 //
-//        FVector gradYj = X[row_index];
-//        gradYj.scale(2 * (predict - rating));
+//        FVector gradYj = X[row_index]; // need to multiply by Xi
+//        gradYj.scale(-exp(rating * predict) * rating / den);
 //        gradYj.scale_and_add(Y[col_index], lambda);
 //
 //        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+
+        // Apply Gradient for Square Loss
+        FVector gradXi = Y[col_index];
+        gradXi.scale(2 * (predict - rating));
+        gradXi.scale_and_add(X[row_index], lambda);
+
+        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+
+        FVector gradYj = X[row_index];
+        gradYj.scale(2 * (predict - rating));
+        gradYj.scale_and_add(Y[col_index], lambda);
+
+        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square-hinge Loss
 //        if (rating * predict < 1){
@@ -131,6 +131,8 @@ void* gradient_thread(void* params) {
 //            X[row_index].scale(1 - cur_learning_rate * lambda);
 //            Y[col_index].scale(1 - cur_learning_rate * lambda);
 //        }
+        
+        sampleCount++; 
     }
     return NULL;
 }
@@ -156,11 +158,11 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 1;
+    double learning_rate = 0.009;
     double cur_learning_rate = learning_rate;
     int nWorkers = 10;
     double sample_rate = 0.9;
-    double lambda = 0.01;
+    double lambda = 0.1;
     int nTrain = int(nExamples * sample_rate);
     int nTest = nExamples - nTrain;
     std::cout << "nWorkers: " << nWorkers << std::endl;
