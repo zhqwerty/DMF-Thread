@@ -3,6 +3,7 @@
 #include <vector>
 #include <math.h>
 #include <random>
+#include <atomic>
 #include "simple_random.h"
 #include "timer.h"
 #include "fvector.h"
@@ -11,6 +12,8 @@
 #include "global_macros.h"
 
 using namespace std;
+
+std::atomic<int> sampleCount(0); // global variable
 
 void permute(simple_random &rand, int *d, int n) {
   for(int i = n - 1; i > 0; i--) {
@@ -42,6 +45,7 @@ void* permute_thread( void* p ) {
 
 struct gradient_thread_info {
     int id, nWorkers, nTrain;
+    std::atomic<int> counter;
     FVector *X, *Y;
     Example* ex;
     int* perm;
@@ -75,7 +79,7 @@ void* gradient_thread(void* params) {
 //    DEBUG_ONLY(cout << "start=" << start_offset << " -- " << end_offset << " " << nExamples << " nWorkers=" << nWorkers << " id=" << id << endl;)
 
     timer worker_time(true); 
-    while (worker_time.elapsed() < 1){
+    while (sampleCount < nTrain){
         // Read example
         int pi = sample[rand() % nTrain];
         int row_index = examples[pi].row;
@@ -127,7 +131,7 @@ void* gradient_thread(void* params) {
 //            X[row_index].scale(1 - cur_learning_rate * lambda);
 //            Y[col_index].scale(1 - cur_learning_rate * lambda);
 //        }
-        worker_time.stop();
+        sampleCount++; 
     }
     return NULL;
 }
@@ -155,7 +159,7 @@ int main(int argv, char *argc[]){
     int maxEpoch = 22;
     double learning_rate = 1;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 10;
+    int nWorkers = 1;
     double sample_rate = 0.9;
     double lambda = 0.01;
     int nTrain = int(nExamples * sample_rate);
