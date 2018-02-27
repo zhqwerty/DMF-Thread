@@ -98,34 +98,40 @@ void* gradient_thread(void* params) {
 //        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square Loss
-//        FVector gradXi = Y[col_index];
-//        gradXi.scale(2 * (predict - rating));
-//        gradXi.scale_and_add(X[row_index], lambda);
-//
-//        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-//
-//        FVector gradYj = X[row_index];
-//        gradYj.scale(2 * (predict - rating));
-//        gradYj.scale_and_add(Y[col_index], lambda);
-//
-//        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        FVector gradXi = Y[col_index];
+        gradXi.scale(2 * (predict - rating));
+        gradXi.scale_and_add(X[row_index], lambda);
+
+        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+
+        FVector gradYj = X[row_index];
+        gradYj.scale(2 * (predict - rating));
+        gradYj.scale_and_add(Y[col_index], lambda);
+
+        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square-hinge Loss
-        if (rating * predict < 1){
-            FVector gradXi = Y[col_index];
-            gradXi.scale(2 * (rating * predict - 1) * rating);
-            gradXi.scale_and_add(X[row_index], lambda);
-            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-            
-            FVector gradYj = X[row_index];
-            gradYj.scale(2 * (rating * predict - 1) * rating);
-            gradYj.scale_and_add(Y[col_index], lambda);
-            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
-        } 
-        else{
-            X[row_index].scale(1 - cur_learning_rate * lambda);
-            Y[col_index].scale(1 - cur_learning_rate * lambda);
-        }
+//        if (rating * predict < 1){
+//            FVector gradXi = Y[col_index];
+//            gradXi.scale(2 * (rating * predict - 1) * rating);
+//            gradXi.scale_and_add(X[row_index], lambda);
+//            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//            
+//            FVector gradYj = X[row_index];
+//            gradYj.scale(2 * (rating * predict - 1) * rating);
+//            gradYj.scale_and_add(Y[col_index], lambda);
+//            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+//        } 
+//        else{
+//            X[row_index].scale(1 - cur_learning_rate * lambda);
+//            Y[col_index].scale(1 - cur_learning_rate * lambda);
+//        }
+        
+        // Scale to 1 for accleration
+//        predict = FVector::dot(X[row_index], Y[col_index]);
+//        double scale_size = 1.0 / abs(predict);
+//        X[row_index].scale(scale_size);
+//        Y[col_index].scale(scale_size);
     }
     return NULL;
 }
@@ -225,15 +231,75 @@ int main(int argv, char *argc[]){
     }
 
     //  OutPut File
-     std::ofstream out("./Output/out.txt");
-     if (out.is_open()){
-         printf("write to output file\n");
-         for (int i = 0; i < Epoch.size(); i++){
-             out << Epoch[i] << " " << Acc[i] << " " << Rmse[i] << " " << Time[i] << "\n";
-         }
-         out.close();
-     }
+    std::ofstream out("./Output/out.txt");  // Epoch, Acc, RMSE, Time
+    if (out.is_open()){
+        printf("write to output file\n");
+        for (int i = 0; i < Epoch.size(); i++){
+            out << Epoch[i] << " " << Acc[i] << " " << Rmse[i] << " " << Time[i] << "\n";
+        }
+        out.close();
+    }
+    
+    std::ofstream out_x("./Output/X.txt"); // matrix X
+    if (out_x.is_open()){
+        printf("write to output X file \n");
+        for (int i = 0; i < nRows; i++){
+            for (int j = 0; j < 30; j++){
+                out_x << X[i].get(j) << " ";
+            }
+            out_x << "\n";
+        }
+        out_x.close();
+    }
 
+    std::ofstream out_y("./Output/Y.txt"); // matrix Y
+    if (out_y.is_open()){
+        printf("write to output Y file \n");
+        for (int i = 0; i < nCols; i++){
+            for (int j = 0; j < 30; j++){
+                out_y << Y[i].get(j) << " ";
+            }
+            out_y << "\n";
+        }
+        out_y.close();
+    }
+    
+    long long p_num = 0; // positive number of rating
+    long long n_num = 0; // negative number of rating
+    long long zero_num = 0; // number of zero
+    long double p_sum = 0;
+    long double n_sum = 0;
+    long double p_square = 0;
+    long double n_square = 0;
+    std::ofstream out_m("./Output/M.txt"); // Final matrix M
+    if (out_m.is_open()){
+        printf("Write to output Matrix file\n");
+        for (int i = 0; i < nRows; i++){
+            for (int j = 0; j < nCols; j++){
+                double predict = FVector::dot(X[i], Y[j]);
+                if (predict > 0){  // positive rating
+                    p_sum += predict;
+                    p_square += (predict - 4.3417) * (predict - 4.3417);
+                    p_num++;
+                }
+                else if (predict < 0){ // negative rating
+                    n_sum += predict;
+                    n_num++;
+                    n_square += (predict + 0.5286) * (predict + 0.5286);
+                }
+                else zero_num++;  // zero_number     
+                if ((i + j) % 10000 == 0){ // shrink to 1w times
+                    out_m << predict << " ";
+                }
+            }
+            out_m << "\n";
+        }
+        out_m.close();
+    }
+
+    printf("p_num: %lld, p_sum: %.4Lf, n_num: %lld, n_sum: %.4Lf, zero_num: %lld \n", p_num, p_sum, n_num, n_sum, zero_num);
+    printf("p_square: %.4Lf, n_square: %.4Lf, p_delta: %.4Lf, n_delta: %.4Lf \n", p_square, n_square, p_square / (1 + p_num), n_square / (1 + n_num));
+    printf("the positive average rating is %.4Lf, the negative average rating is %.4Lf \n", p_sum / (1 + p_num), n_sum / (1 + n_num) );
 
     for (int i = 0; i < nWorkers; i++) delete wtis[i];
     delete shared_perm;
