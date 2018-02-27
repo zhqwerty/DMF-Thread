@@ -28,6 +28,12 @@ public:
     for(int i = _n - 1; i >=0; i--) { _p[i] *= w; } 
   }
 
+  void print(){
+    for (int i = 0; i < _n; i++){
+        std::cout << _p[i] << " ";
+    }
+    std::cout << std::endl;
+  }
   // static inline FVector scale(double w, const FVector& x){
   //   FVector y;
   //   for (int i = _n - 1; i >= 0; i++){
