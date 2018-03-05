@@ -82,6 +82,7 @@ void* gradient_thread(void* params) {
         // Read example
         //int pi = sample[rand() % nTrain];
         //int pi = sample[perm[sampleCount % nTrain]];
+        
         std::random_device rm;
         int pi = sample[rm() % nTrain];
         int row_index = examples[pi].row;
@@ -140,8 +141,8 @@ void* gradient_thread(void* params) {
 }
 
 int main(int argv, char *argc[]){
-    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
-    const char* inputFile = "/home/han/data/Epinions/epinions.txt";
+    const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
+    //const char* inputFile = "/home/han/data/Epinions/epinions.txt";
     //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
     //const char* inputFile = "/Users/ZMY/data/Epinions/epinions.txt";
     int nRows, nCols, nExamples;
@@ -165,6 +166,7 @@ int main(int argv, char *argc[]){
     int nWorkers = 10;
     double sample_rate = 0.9;
     double lambda = 0.01;
+    double maxAcc = 0;
     int nTrain = int(nExamples * sample_rate);
     int nTest = nExamples - nTrain;
     std::cout << "nWorkers: " << nWorkers << std::endl;
@@ -188,13 +190,15 @@ int main(int argv, char *argc[]){
 
     for (int epoch = 0; epoch < maxEpoch; epoch++){
         sampleCount.exchange(0); // set counter to be 0 for each epoch
-    	pthread_t shuffler_t;
         cur_learning_rate = learning_rate / pow(1 + epoch, 0.1);
-        int ret = pthread_create( &shuffler_t, NULL, permute_thread, (void*)pti);
-        if(ret != 0) { 
-            cout << "Error in pthread_create: " << ret << endl;
-            exit(-1); 
-        }
+
+        // No need to permute samples in every epoch since random pick in threads
+//        pthread_t shuffler_t;
+//        int ret = pthread_create( &shuffler_t, NULL, permute_thread, (void*)pti);
+//        if(ret != 0) { 
+//            cout << "Error in pthread_create: " << ret << endl;
+//            exit(-1); 
+//        }
 
         pthread_t workers[nWorkers];
         for(int i = 0; i < nWorkers; i++) {
@@ -210,7 +214,9 @@ int main(int argv, char *argc[]){
         for(int i = 0; i < nWorkers; i++) {
             pthread_join(workers[i], NULL);
         }
-        pthread_join(shuffler_t, NULL);
+
+        // No master thread
+//        pthread_join(shuffler_t, NULL);
         
         // Test Error and Accuracy 
         int trueNum = 0;
@@ -230,6 +236,7 @@ int main(int argv, char *argc[]){
         Epoch.push_back(epoch + 1);
         train_time.stop();
         Time.push_back(train_time.elapsed());
+        maxAcc = max(maxAcc, Acc.back());
         printf("Epoch: %d   Accuracy: %.4f  RMSE: %.4f  Spend Time: %.2f s \n", Epoch.back(), Acc.back(), Rmse.back(), Time.back() ); 
     }
 
@@ -242,7 +249,7 @@ int main(int argv, char *argc[]){
          }
          out.close();
      }
-
+    printf("the max Accuracy: %.4f\n", maxAcc);
 
     for (int i = 0; i < nWorkers; i++) delete wtis[i];
     delete shared_perm;
