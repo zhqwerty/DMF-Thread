@@ -156,7 +156,7 @@ int main(int argv, char *argc[]){
     int maxEpoch = 100;
     double learning_rate = 1;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 10;
+    int nWorkers = 1;
     double sample_rate = 0.9;
     double lambda = 0.01;
     int nTrain = int(nExamples * sample_rate);
