@@ -71,7 +71,8 @@ void* gradient_thread(void* params) {
     int nTrain = gti->nTrain;
     double cur_learning_rate = gti->cur_learning_rate;
     double lambda = gti->lambda;
-
+    simple_random rd;
+    
     // Calculate offset for examples
 //    int start_offset = id * (nTrain / nWorkers);
 //    int end_offset   = min(nTrain, (id + 1) * (nTrain / nWorkers));
@@ -79,8 +80,7 @@ void* gradient_thread(void* params) {
 
     while (sampleCount < nTrain){
         // Read example
-        std::random_device rm;
-        int pi = sample[rm() % nTrain];
+        int pi = sample[rd.rand_int(nTrain)];
         int row_index = examples[pi].row;
         int col_index = examples[pi].col;
         double rating = examples[pi].rating;
@@ -137,8 +137,8 @@ void* gradient_thread(void* params) {
 }
 
 int main(int argv, char *argc[]){
-    const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
-    //const char* inputFile = "/home/han/data/Epinions/epinions.txt";
+    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
+    const char* inputFile = "/home/han/data/Epinions/epinions.txt";
     //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
     //const char* inputFile = "/Users/ZMY/data/Epinions/epinions.txt";
     int nRows, nCols, nExamples;
@@ -159,7 +159,7 @@ int main(int argv, char *argc[]){
     int maxEpoch = 100;
     double learning_rate = 1;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 1;
+    int nWorkers = 40;
     double sample_rate = 0.9;
     double lambda = 0.01;
     double maxAcc = 0;
