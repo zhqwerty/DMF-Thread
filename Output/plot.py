@@ -8,7 +8,7 @@ totTime = []
 # plt.figure(1)
 
 for i in range(5):
-	ifn = "./epinions-sh/w" + str(numWorkers[i]) + ".txt"
+	ifn = "./slashdot-sig/w" + str(numWorkers[i]) + ".txt"
 	time = []
 	acc = []
 	epoch = []
@@ -26,12 +26,15 @@ for i in range(5):
 	totTime.append(time[-1])
 	speedup.append(totTime[0] / totTime[-1])
 
-#	plt.plot(epoch, acc, label = "w = " + str(numWorkers[i]))
-#	plt.xlabel("Epoch")
-#	plt.ylabel("Accuracy")
-#	plt.title("Slashdot with Square Loss")
-#	plt.legend(loc = 0)
-#	plt.grid(True)
+	plt.plot(epoch, acc, label = "w = " + str(numWorkers[i]))
+	plt.xlabel("Epoch", fontsize = 14)
+	plt.ylabel("Accuracy", fontsize = 14)
+	plt.xticks(fontsize = 14)
+	plt.yticks(fontsize = 14)
+
+	# plt.title("Slashdot with Square Loss")
+	plt.legend(loc = 0, fontsize = 14)
+	plt.grid(True)
 
 	infile.close()
 
