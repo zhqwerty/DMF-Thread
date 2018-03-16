@@ -102,34 +102,34 @@ void* gradient_thread(void* params) {
 //        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square Loss
-        FVector gradXi = Y[col_index];
-        gradXi.scale(2 * (predict - rating));
-        gradXi.scale_and_add(X[row_index], lambda);
-
-        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-
-        FVector gradYj = X[row_index];
-        gradYj.scale(2 * (predict - rating));
-        gradYj.scale_and_add(Y[col_index], lambda);
-
-        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+//        FVector gradXi = Y[col_index];
+//        gradXi.scale(2 * (predict - rating));
+//        gradXi.scale_and_add(X[row_index], lambda);
+//
+//        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//
+//        FVector gradYj = X[row_index];
+//        gradYj.scale(2 * (predict - rating));
+//        gradYj.scale_and_add(Y[col_index], lambda);
+//
+//        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square-hinge Loss
-//        if (rating * predict < 1){
-//            FVector gradXi = Y[col_index];
-//            gradXi.scale(2 * (rating * predict - 1) * rating);
-//            gradXi.scale_and_add(X[row_index], lambda);
-//            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-//            
-//            FVector gradYj = X[row_index];
-//            gradYj.scale(2 * (rating * predict - 1) * rating);
-//            gradYj.scale_and_add(Y[col_index], lambda);
-//            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
-//        } 
-//        else{
-//            X[row_index].scale(1 - cur_learning_rate * lambda);
-//            Y[col_index].scale(1 - cur_learning_rate * lambda);
-//        }
+        if (rating * predict < 1){
+            FVector gradXi = Y[col_index];
+            gradXi.scale(2 * (rating * predict - 1) * rating);
+            gradXi.scale_and_add(X[row_index], lambda);
+            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+            
+            FVector gradYj = X[row_index];
+            gradYj.scale(2 * (rating * predict - 1) * rating);
+            gradYj.scale_and_add(Y[col_index], lambda);
+            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        } 
+        else{
+            X[row_index].scale(1 - cur_learning_rate * lambda);
+            Y[col_index].scale(1 - cur_learning_rate * lambda);
+        }
         
         sampleCount++; 
     }
@@ -137,8 +137,8 @@ void* gradient_thread(void* params) {
 }
 
 int main(int argv, char *argc[]){
-    const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
-    //const char* inputFile = "/home/han/data/Epinions/epinions.txt";
+    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
+    const char* inputFile = "/home/han/data/Epinions/epinions.txt";
     //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
     //const char* inputFile = "/Users/ZMY/data/Epinions/epinions.txt";
     int nRows, nCols, nExamples;
@@ -159,7 +159,7 @@ int main(int argv, char *argc[]){
     int maxEpoch = 100;
     double learning_rate = 0.02;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 10;
+    int nWorkers = 40;
     double sample_rate = 0.9;
     double lambda = 0.4;
     double maxAcc = 0;
