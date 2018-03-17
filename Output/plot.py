@@ -8,7 +8,7 @@ totTime = []
 # plt.figure(1)
 
 for i in range(5):
-	ifn = "./epinions-sq/w" + str(numWorkers[i]) + ".txt"
+	ifn = "./slashdot-sig/w" + str(numWorkers[i]) + ".txt"
 	time = []
 	acc = []
 	epoch = []
@@ -32,8 +32,8 @@ for i in range(5):
 	plt.xticks(fontsize = 14)
 	plt.yticks(fontsize = 14)
 	plt.xlim(0,100)
-	# plt.ylim(0.82,0.885)
-	plt.ylim(0.92,0.951)
+	plt.ylim(0.82,0.90)
+	# plt.ylim(0.90,0.96)
 	# plt.title("Slashdot with Square Loss")
 	plt.legend(loc = 4, fontsize = 14)
 	plt.grid(True)
