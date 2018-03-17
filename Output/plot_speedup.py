@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-algos = ["Slashdot-Sigmoid", "Slashdot-Square", "Slashdot-Sauared Hinge", "Epinions-Sigmoid", "Epinions-Square", "Epinions-Squared Hinge"]
+algos = ["Slashdot-Sigmoid", "Slashdot-Square", "Slashdot-Squared Hinge", "Epinions-Sigmoid", "Epinions-Square", "Epinions-Squared Hinge"]
 marker = ['o', '*', 'v', 's','h','+']
 numWorkers = [1,10,20,30,40]
 time = [[0 for j in range(5)] for i in range(6)]
@@ -38,11 +38,13 @@ for i in range(6):
 plt.figure(1)
 for i in range(6):
 	plt.plot(numWorkers, speedup[i], label = algos[i], marker = marker[i])
-	plt.xlabel("Number of workers", fontsize = 14)
+	plt.xlabel("$M$", fontsize = 14)
 	plt.ylabel("Speedup", fontsize = 14)
 	plt.xticks(fontsize = 14)
 	plt.yticks(fontsize = 14)
 	plt.grid(True)
+	plt.ylim(0,12)
+	plt.xlim(0,40)
 	plt.legend(loc = 0, fontsize = 12)
 
 plt.show()
