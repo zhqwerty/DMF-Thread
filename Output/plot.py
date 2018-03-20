@@ -34,7 +34,7 @@ for i in range(5):
 	plt.yticks(fontsize = 14)
 	plt.xlim(0,100)
 	# plt.ylim(0.82,0.885)
-	plt.ylim(0.9,0.951)
+	plt.ylim(0.9,0.96)
 	plt.grid(True)
 	plt.legend(loc = 4, fontsize = 14)
 
