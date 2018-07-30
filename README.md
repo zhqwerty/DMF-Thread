@@ -14,5 +14,4 @@ Square-Hinge Loss: $ loss(x,y) = (max(0, 1-xy))^2 $ with $\lambda = 0.1$
 
 
 run the code:
-
-mpirun -np numberOfThread ./multithread
+make and ./multithread
