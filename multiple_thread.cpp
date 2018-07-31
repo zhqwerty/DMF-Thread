@@ -82,6 +82,27 @@ void* gradient_thread(void* params) {
         double rating = examples[pi].rating;
         double predict = FVector::dot(X[row_index], Y[col_index]);
 
+        // Apply Gradient for Absolute Loss
+        if (rating - predict > 0){
+            FVector gradXi = Y[col_index];
+            gradXi.scale(-1);
+            gradXi.scale_and_add(X[row_index], lambda); 
+            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+           
+            FVector gradYj = X[row_index];
+            gradYj.scale(-1);
+            gradYj.scale_and_add(Y[col_index], lambda);
+            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        } else if (rating - predict < 0) {
+            FVector gradXi = Y[col_index];
+            gradXi.scale_and_add(X[row_index], lambda); 
+            X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+           
+            FVector gradYj = X[row_index];
+            gradYj.scale_and_add(Y[col_index], lambda);
+            Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+        }
+
         // Apply Gradient for Sigmoid Loss
 //        double den = pow(1 + exp(predict * rating), 2); 
 //        
@@ -98,17 +119,17 @@ void* gradient_thread(void* params) {
 //        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square Loss
-        FVector gradXi = Y[col_index];
-        gradXi.scale(2 * (predict - rating));
-        gradXi.scale_and_add(X[row_index], lambda);
-
-        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
-
-        FVector gradYj = X[row_index];
-        gradYj.scale(2 * (predict - rating));
-        gradYj.scale_and_add(Y[col_index], lambda);
-
-        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
+//        FVector gradXi = Y[col_index];
+//        gradXi.scale(2 * (predict - rating));
+//        gradXi.scale_and_add(X[row_index], lambda);
+//
+//        X[row_index].scale_and_add(gradXi, -cur_learning_rate);
+//
+//        FVector gradYj = X[row_index];
+//        gradYj.scale(2 * (predict - rating));
+//        gradYj.scale_and_add(Y[col_index], lambda);
+//
+//        Y[col_index].scale_and_add(gradYj, -cur_learning_rate);
 
         // Apply Gradient for Square-hinge Loss
 //        if (rating * predict < 1){
