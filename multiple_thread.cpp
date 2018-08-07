@@ -152,12 +152,8 @@ void* gradient_thread(void* params) {
 }
 
 int main(int argv, char *argc[]){
-    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
-    //const char* inputFile = "/home/han/data/Epinions/epinions.txt";
-    //const char* inputFile = "/home/han/data/Slashdot/slashdot.txt";
-    //const char* inputFile = "/Users/ZMY/data/Epinions/epinions.txt";
-    //const char* inputFile = "./data/Slashdot/my_slashdot.txt";
     const char* inputFile = "./data/Epinions/my_epinions.txt";
+    //const char* inputFile = "./data/Slashdot/my_slashdot.txt";
     int nRows, nCols, nExamples;
     Example* examples = load_examples(inputFile, nRows, nCols, nExamples);
     
@@ -177,11 +173,11 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 0.018;
+    double learning_rate = 0.022;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 10;
+    int nWorkers = 1;
     double sample_rate = 0.9;
-    double lambda = 0.2;
+    double lambda = 0.1;
     int nTrain = int(nExamples * sample_rate);
     int nTest = nExamples - nTrain;
     std::cout << "Lambda: " << lambda << " nWorkers: " << nWorkers << std::endl;
