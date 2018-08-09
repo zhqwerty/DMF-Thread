@@ -158,7 +158,8 @@ void* gradient_thread(void* params) {
 }
 
 int main(int argv, char *argc[]){
-    const char* inputFile = "./data/Epinions/my_epinions.txt";
+    const char* inputFile = "./data/Slashdot/my_slashdot.txt";
+    //const char* inputFile = "./data/Epinions/my_epinions.txt";
     int nRows, nCols, nExamples;
     Example* examples = load_examples(inputFile, nRows, nCols, nExamples);
     
@@ -175,9 +176,9 @@ int main(int argv, char *argc[]){
 
     // Variables Update
     int maxEpoch = 100;
-    double learning_rate = 0.02;
+    double learning_rate = 0.022;
     double cur_learning_rate = learning_rate;
-    int nWorkers = 10;
+    int nWorkers = 40;
     double sample_rate = 0.9;
     double lambda = 0.1;
     double maxAcc = 0;
